@@ -1,6 +1,10 @@
 venv/
+.venv/
 .env
 data/
 *.pyc
 __pycache__/
 *.pdf
+service-account-key.json
+*.json
+!requirements.txt
