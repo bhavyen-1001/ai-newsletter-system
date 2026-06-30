@@ -1,0 +1,100 @@
+name: Weekly AI Research Newsletter
+
+on:
+  schedule:
+    - cron: "5 12 * * 0"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Generate the newsletter without sending it"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      week:
+        description: "Optional Hugging Face week, for example 2026-W26"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  newsletter:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_MODEL_ID: ${{ vars.HF_MODEL_ID }}
+      HF_PROVIDER: ${{ vars.HF_PROVIDER }}
+      MAILCHIMP_API_KEY: ${{ secrets.MAILCHIMP_API_KEY }}
+      MAILCHIMP_SERVER_PREFIX: ${{ secrets.MAILCHIMP_SERVER_PREFIX }}
+      MAILCHIMP_AUDIENCE_ID: ${{ secrets.MAILCHIMP_AUDIENCE_ID }}
+      MAILCHIMP_FROM_NAME: ${{ vars.MAILCHIMP_FROM_NAME }}
+      MAILCHIMP_REPLY_TO: ${{ secrets.MAILCHIMP_REPLY_TO }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      NEWSLETTER_SUBJECT_PREFIX: ${{ vars.NEWSLETTER_SUBJECT_PREFIX }}
+      NEWSLETTER_SIGNUP_URL: ${{ vars.NEWSLETTER_SIGNUP_URL }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run tests
+        run: pytest
+
+      - name: Build and send newsletter
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          WEEK: ${{ github.event_name == 'workflow_dispatch' && inputs.week || '' }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          if [ "$DRY_RUN" = "true" ]; then
+            ARGS+=(--dry-run)
+          else
+            ARGS+=(--send)
+          fi
+          if [ -n "$WEEK" ]; then
+            ARGS+=(--week "$WEEK")
+          fi
+          python -m newsletter run "${ARGS[@]}"
+
+      - name: Upload newsletter outputs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newsletter-${{ github.run_id }}
+          path: outputs/
+          if-no-files-found: ignore
+
+      - name: Add workflow summary
+        if: always()
+        run: |
+          if [ -f outputs/latest_summary.md ]; then
+            cat outputs/latest_summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Commit sent state
+        if: ${{ success() && !(github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true') }}
+        run: |
+          if git diff --quiet -- data/sent_papers.json; then
+            echo "No sent state changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/sent_papers.json
+          git commit -m "Update sent papers state"
+          git push

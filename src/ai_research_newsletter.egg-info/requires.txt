@@ -1,0 +1,9 @@
+beautifulsoup4<5,>=4.12
+huggingface_hub<2,>=0.34
+PyMuPDF<2,>=1.24
+python-dotenv<2,>=1
+requests<3,>=2.32
+tenacity<10,>=8.2
+
+[dev]
+pytest<9,>=8
