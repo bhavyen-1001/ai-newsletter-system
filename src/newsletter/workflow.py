@@ -22,6 +22,7 @@ from newsletter.state import SentPaperState
 class WorkflowResult:
     week: str
     dry_run: bool
+    test_only: bool
     campaign_id: str | None
     selected_count: int
     skipped: list[str]
@@ -32,7 +33,17 @@ class NewsletterWorkflow:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 
-    def run(self, *, week: str | None, dry_run: bool, mock_llm: bool) -> WorkflowResult:
+    def run(
+        self,
+        *,
+        week: str | None,
+        dry_run: bool,
+        test_only: bool = False,
+        mock_llm: bool,
+    ) -> WorkflowResult:
+        if dry_run and test_only:
+            raise ValueError("dry_run and test_only modes cannot both be enabled.")
+
         self.settings.require_llm_config(mock_llm=mock_llm)
         if not dry_run:
             self.settings.require_send_config()
@@ -89,7 +100,15 @@ class NewsletterWorkflow:
         )
 
         campaign_id: str | None = None
-        self._write_outputs(issue=issue, html=html, text=text, skipped=skipped, dry_run=dry_run, campaign_id=None)
+        self._write_outputs(
+            issue=issue,
+            html=html,
+            text=text,
+            skipped=skipped,
+            dry_run=dry_run,
+            test_only=test_only,
+            campaign_id=None,
+        )
 
         if not dry_run:
             provider = MailchimpProvider(
@@ -103,22 +122,26 @@ class NewsletterWorkflow:
             campaign_id = provider.create_campaign(title=campaign_title, subject=campaign_title)
             provider.set_campaign_content(campaign_id=campaign_id, html=html, text=text)
             provider.send_test(campaign_id=campaign_id, test_email=self.settings.admin_email or "")
-            provider.send_campaign(campaign_id=campaign_id)
 
-            state.mark_issue_sent(issue, campaign_id=campaign_id)
-            state.save()
+            if not test_only:
+                provider.send_campaign(campaign_id=campaign_id)
+                state.mark_issue_sent(issue, campaign_id=campaign_id)
+                state.save()
+
             self._write_outputs(
                 issue=issue,
                 html=html,
                 text=text,
                 skipped=skipped,
                 dry_run=dry_run,
+                test_only=test_only,
                 campaign_id=campaign_id,
             )
 
         return WorkflowResult(
             week=target_week,
             dry_run=dry_run,
+            test_only=test_only,
             campaign_id=campaign_id,
             selected_count=len(selected),
             skipped=skipped,
@@ -133,18 +156,22 @@ class NewsletterWorkflow:
         text: str,
         skipped: list[str],
         dry_run: bool,
+        test_only: bool,
         campaign_id: str | None,
     ) -> None:
         output_dir = self.settings.output_dir
         output_dir.mkdir(parents=True, exist_ok=True)
         stem = issue.week
+        mode = _mode_name(dry_run=dry_run, test_only=test_only)
 
         (output_dir / f"{stem}.html").write_text(html, encoding="utf-8")
         (output_dir / f"{stem}.txt").write_text(text, encoding="utf-8")
         payload: dict[str, Any] = {
             "week": issue.week,
             "generated_at": issue.generated_at,
+            "mode": mode,
             "dry_run": dry_run,
+            "test_only": test_only,
             "campaign_id": campaign_id,
             "papers": [dataclass_to_dict(paper) for paper in issue.papers],
             "skipped": skipped,
@@ -154,7 +181,13 @@ class NewsletterWorkflow:
             encoding="utf-8",
         )
         (output_dir / "latest_summary.md").write_text(
-            _summary_markdown(issue=issue, dry_run=dry_run, campaign_id=campaign_id, skipped=skipped),
+            _summary_markdown(
+                issue=issue,
+                dry_run=dry_run,
+                test_only=test_only,
+                campaign_id=campaign_id,
+                skipped=skipped,
+            ),
             encoding="utf-8",
         )
 
@@ -163,10 +196,11 @@ def _summary_markdown(
     *,
     issue: NewsletterIssue,
     dry_run: bool,
+    test_only: bool = False,
     campaign_id: str | None,
     skipped: list[str],
 ) -> str:
-    mode = "dry run" if dry_run else "sent"
+    mode = _mode_label(dry_run=dry_run, test_only=test_only)
     lines = [
         f"# AI Research Weekly - {issue.week}",
         "",
@@ -202,3 +236,19 @@ def _summary_markdown(
         lines.extend(f"- {item}" for item in skipped[:20])
     lines.append("")
     return "\n".join(lines)
+
+
+def _mode_name(*, dry_run: bool, test_only: bool) -> str:
+    if dry_run:
+        return "dry_run"
+    if test_only:
+        return "test_only"
+    return "send"
+
+
+def _mode_label(*, dry_run: bool, test_only: bool) -> str:
+    if dry_run:
+        return "dry run"
+    if test_only:
+        return "test email only"
+    return "sent"

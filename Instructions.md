@@ -12,7 +12,8 @@ This repo contains a simple weekly workflow that turns the top new Hugging Face 
 - Hugging Face Inference summarises the extracted PDF text only.
 - The renderer creates HTML and plain text email bodies.
 - Automated checks require title, authors, arXiv link and non-empty summary fields.
-- Mailchimp creates a regular campaign, sends a test campaign to `ADMIN_EMAIL`, then sends to the full audience.
+- In test-only mode, Mailchimp creates a regular campaign, sets the content, and sends a test campaign to `ADMIN_EMAIL` only.
+- In send mode, Mailchimp creates a regular campaign, sends a test campaign to `ADMIN_EMAIL`, then sends to the full audience.
 - Only after the full campaign send succeeds, `data/sent_papers.json` is updated.
 
 ## Storage Decision
@@ -102,7 +103,21 @@ Send for real:
 python -m newsletter run --send
 ```
 
-By default, `run` is a dry run unless `--send` is passed.
+Send a Mailchimp-rendered test email to `ADMIN_EMAIL` without sending to subscribers:
+
+```bash
+python -m newsletter run --test-only
+```
+
+By default, `run` is a dry run unless `--test-only` or `--send` is passed.
+
+## GitHub Actions Manual Modes
+
+When manually running the workflow, choose one of:
+
+- `dry_run`: generate artifacts and the workflow summary only.
+- `test_only`: create a Mailchimp campaign and send a test email to `ADMIN_EMAIL`, but do not send to subscribers or update `data/sent_papers.json`.
+- `send`: send to subscribers and update `data/sent_papers.json`.
 
 ## Failover Behaviour
 

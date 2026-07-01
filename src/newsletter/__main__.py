@@ -18,6 +18,11 @@ def main(argv: list[str] | None = None) -> int:
     run_parser = subparsers.add_parser("run", help="Build and optionally send the weekly newsletter.")
     mode = run_parser.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", help="Generate outputs without sending.")
+    mode.add_argument(
+        "--test-only",
+        action="store_true",
+        help="Create a Mailchimp campaign and send a test email to ADMIN_EMAIL only.",
+    )
     mode.add_argument("--send", action="store_true", help="Send via Mailchimp and update sent state.")
     run_parser.add_argument("--mock-llm", action="store_true", help="Use deterministic mock summaries.")
     run_parser.add_argument("--week", help="Hugging Face week, for example 2026-W26.")
@@ -27,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
     if args.command == "run":
-        dry_run = not args.send
+        dry_run = not (args.test_only or args.send)
         settings = Settings.from_env(
             state_path=Path(args.state_path),
             output_dir=Path(args.output_dir),
@@ -36,10 +41,17 @@ def main(argv: list[str] | None = None) -> int:
         result = NewsletterWorkflow(settings).run(
             week=args.week,
             dry_run=dry_run,
+            test_only=args.test_only,
             mock_llm=args.mock_llm,
         )
         print(f"Week: {result.week}")
-        print(f"Mode: {'dry-run' if result.dry_run else 'send'}")
+        if result.dry_run:
+            mode_label = "dry-run"
+        elif result.test_only:
+            mode_label = "test-only"
+        else:
+            mode_label = "send"
+        print(f"Mode: {mode_label}")
         print(f"Papers selected: {result.selected_count}")
         if result.campaign_id:
             print(f"Mailchimp campaign ID: {result.campaign_id}")

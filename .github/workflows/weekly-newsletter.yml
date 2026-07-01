@@ -5,14 +5,15 @@ on:
     - cron: "5 12 * * 0"
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: "Generate the newsletter without sending it"
+      mode:
+        description: "Run mode"
         required: true
-        default: "true"
+        default: "dry_run"
         type: choice
         options:
-          - "true"
-          - "false"
+          - "dry_run"
+          - "test_only"
+          - "send"
       week:
         description: "Optional Hugging Face week, for example 2026-W26"
         required: false
@@ -67,17 +68,27 @@ jobs:
 
       - name: Build and send newsletter
         env:
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'send' }}
           WEEK: ${{ github.event_name == 'workflow_dispatch' && inputs.week || '' }}
           COUNT: ${{ github.event_name == 'workflow_dispatch' && inputs.count || '3' }}
         run: |
           set -euo pipefail
           ARGS=()
-          if [ "$DRY_RUN" = "true" ]; then
-            ARGS+=(--dry-run)
-          else
-            ARGS+=(--send)
-          fi
+          case "$MODE" in
+            dry_run)
+              ARGS+=(--dry-run)
+              ;;
+            test_only)
+              ARGS+=(--test-only)
+              ;;
+            send)
+              ARGS+=(--send)
+              ;;
+            *)
+              echo "Unknown MODE: $MODE"
+              exit 1
+              ;;
+          esac
           if [ -n "$WEEK" ]; then
             ARGS+=(--week "$WEEK")
           fi
@@ -100,7 +111,7 @@ jobs:
           fi
 
       - name: Commit sent state
-        if: ${{ success() && !(github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true') }}
+        if: ${{ success() && (github.event_name != 'workflow_dispatch' || inputs.mode == 'send') }}
         run: |
           if git diff --quiet -- data/sent_papers.json; then
             echo "No sent state changes to commit."
