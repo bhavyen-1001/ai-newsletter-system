@@ -1,6 +1,6 @@
 # AI Research Weekly Newsletter
 
-A Python workflow that turns Hugging Face weekly trending AI papers into a concise Mailchimp newsletter.
+An AI workflow to receive the latest AI research every week.
 
-- Signup form link: add the Mailchimp hosted signup URL in `NEWSLETTER_SIGNUP_URL`.
+- [Sign up to receive the latest AI research](http://eepurl.com/02NSDmhNTv)
 - Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
