@@ -17,6 +17,15 @@ on:
         description: "Optional Hugging Face week, for example 2026-W26"
         required: false
         type: string
+      count:
+        description: "Number of papers to include"
+        required: true
+        default: "1"
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "3"
 
 permissions:
   contents: write
@@ -36,6 +45,8 @@ jobs:
       ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
       NEWSLETTER_SUBJECT_PREFIX: ${{ vars.NEWSLETTER_SUBJECT_PREFIX }}
       NEWSLETTER_SIGNUP_URL: ${{ vars.NEWSLETTER_SIGNUP_URL }}
+      PDF_TEXT_MAX_CHARS: ${{ vars.PDF_TEXT_MAX_CHARS }}
+      MIN_PDF_TEXT_CHARS: ${{ vars.MIN_PDF_TEXT_CHARS }}
 
     steps:
       - name: Check out repository
@@ -58,6 +69,7 @@ jobs:
         env:
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
           WEEK: ${{ github.event_name == 'workflow_dispatch' && inputs.week || '' }}
+          COUNT: ${{ github.event_name == 'workflow_dispatch' && inputs.count || '3' }}
         run: |
           set -euo pipefail
           ARGS=()
@@ -69,6 +81,7 @@ jobs:
           if [ -n "$WEEK" ]; then
             ARGS+=(--week "$WEEK")
           fi
+          ARGS+=(--count "$COUNT")
           python -m newsletter run "${ARGS[@]}"
 
       - name: Upload newsletter outputs
