@@ -176,8 +176,27 @@ def _summary_markdown(
     if campaign_id:
         lines.append(f"Mailchimp campaign ID: {campaign_id}")
     lines.extend(["", "## Papers"])
-    for paper in issue.papers:
-        lines.append(f"- {paper.metadata.arxiv_id}: {paper.metadata.title}")
+    for index, paper in enumerate(issue.papers, start=1):
+        metadata = paper.metadata
+        summary = paper.summary
+        lines.extend(
+            [
+                "",
+                f"### {index}. {metadata.title}",
+                f"- arXiv: [{metadata.arxiv_id}]({metadata.arxiv_url})",
+                f"- Authors: {', '.join(metadata.authors)}",
+                "",
+                f"**Executive summary:** {summary.executive_summary}",
+                "",
+                f"**Problem:** {summary.problem}",
+                "",
+                f"**Method:** {summary.method}",
+                "",
+                f"**Why it matters:** {summary.why_it_matters}",
+                "",
+                f"**Limitations:** {summary.limitations}",
+            ]
+        )
     if skipped:
         lines.extend(["", "## Skipped"])
         lines.extend(f"- {item}" for item in skipped[:20])
