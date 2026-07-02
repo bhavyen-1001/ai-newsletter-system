@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import re
 import xml.etree.ElementTree as ET
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 
 import fitz
 import requests
@@ -61,20 +63,39 @@ def download_pdf(pdf_url: str) -> bytes:
 
 
 def extract_pdf_text(pdf_bytes: bytes, *, max_chars: int) -> str:
-    with fitz.open(stream=pdf_bytes, filetype="pdf") as document:
-        chunks: list[str] = []
-        total = 0
-        for page in document:
-            text = page.get_text("text")
-            if not text:
-                continue
-            chunks.append(text)
-            total += len(text)
-            if total >= max_chars:
-                break
+    with _suppress_mupdf_diagnostics():
+        with fitz.open(stream=pdf_bytes, filetype="pdf") as document:
+            chunks: list[str] = []
+            total = 0
+            for page in document:
+                text = page.get_text("text")
+                if not text:
+                    continue
+                chunks.append(text)
+                total += len(text)
+                if total >= max_chars:
+                    break
 
     cleaned = _clean_pdf_text("\n".join(chunks))
     return cleaned[:max_chars]
+
+
+@contextmanager
+def _suppress_mupdf_diagnostics() -> Iterator[None]:
+    tools = getattr(fitz, "TOOLS", None)
+    toggles: list[tuple[Callable[..., object], object]] = []
+    try:
+        for name in ("mupdf_display_errors", "mupdf_display_warnings"):
+            toggle = getattr(tools, name, None)
+            if not callable(toggle):
+                continue
+            previous = toggle()
+            toggle(False)
+            toggles.append((toggle, previous))
+        yield
+    finally:
+        for toggle, previous in reversed(toggles):
+            toggle(previous)
 
 
 def _clean_text(value: str) -> str:
