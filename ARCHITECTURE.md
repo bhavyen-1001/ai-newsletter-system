@@ -120,7 +120,7 @@ External calls are retried with exponential backoff:
 - PDF download: 2 attempts.
 - LLM summarisation: 3 attempts for transient failures on each configured model endpoint.
 
-The default LLM path uses `google/gemma-3-27b-it` through `featherless-ai`, then falls back to `CohereLabs/aya-expanse-32b` through `cohere` if the primary endpoint fails or returns unusable JSON.
+The default LLM path uses `google/gemma-3-27b-it`, then falls back to `CohereLabs/aya-expanse-32b` if the primary endpoint fails or returns unusable JSON. Both endpoints use Hugging Face provider routing with `provider="auto"` unless a provider override is supplied.
 
 Failures for a single paper are recorded in the skipped list and the workflow continues to the next trending paper. The issue fails validation if no usable papers remain or if a selected paper is missing required fields. That means a bad candidate should not stop the whole issue, but an empty or incomplete newsletter should not be sent.
 

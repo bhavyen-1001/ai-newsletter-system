@@ -56,12 +56,12 @@ No secret values should be committed to the repo.
 Add these under `Settings -> Secrets and variables -> Actions -> Variables`:
 
 - `HF_MODEL_ID`: `google/gemma-3-27b-it`
-- `HF_PROVIDER`: `featherless-ai`
 - `HF_FALLBACK_MODEL_ID`: `CohereLabs/aya-expanse-32b`
-- `HF_FALLBACK_PROVIDER`: `cohere`
 - `MAILCHIMP_FROM_NAME`
 - `NEWSLETTER_SUBJECT_PREFIX`: `AI Research Weekly`
 - `NEWSLETTER_SIGNUP_URL`
+
+Hugging Face provider routing defaults to `auto`. You only need `HF_PROVIDER` or `HF_FALLBACK_PROVIDER` if you want to force a specific provider.
 
 ## Mailchimp Setup
 

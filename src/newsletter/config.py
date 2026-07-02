@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 DEFAULT_HF_MODEL_ID = "google/gemma-3-27b-it"
-DEFAULT_HF_PROVIDER = "featherless-ai"
+DEFAULT_HF_PROVIDER = "auto"
 DEFAULT_HF_FALLBACK_MODEL_ID = "CohereLabs/aya-expanse-32b"
-DEFAULT_HF_FALLBACK_PROVIDER = "cohere"
+DEFAULT_HF_FALLBACK_PROVIDER = "auto"
 
 
 @dataclass(frozen=True)
@@ -41,7 +41,7 @@ class Settings:
     ) -> "Settings":
         return cls(
             hf_token=_blank_to_none(os.getenv("HF_TOKEN")),
-            hf_model_id=_blank_to_none(os.getenv("HF_MODEL_ID")) or DEFAULT_HF_MODEL_ID,
+            hf_model_id=_first_env("HF_MODEL_ID", "HF_MODEL") or DEFAULT_HF_MODEL_ID,
             hf_provider=_blank_to_none(os.getenv("HF_PROVIDER")) or DEFAULT_HF_PROVIDER,
             hf_fallback_model_id=_blank_to_none(os.getenv("HF_FALLBACK_MODEL_ID"))
             or DEFAULT_HF_FALLBACK_MODEL_ID,
@@ -88,6 +88,14 @@ def _blank_to_none(value: str | None) -> str | None:
         return None
     value = value.strip()
     return value or None
+
+
+def _first_env(*names: str) -> str | None:
+    for name in names:
+        value = _blank_to_none(os.getenv(name))
+        if value is not None:
+            return value
+    return None
 
 
 def _int_env(name: str, default: int) -> int:
