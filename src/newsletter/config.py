@@ -4,12 +4,19 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+DEFAULT_HF_MODEL_ID = "google/gemma-3-27b-it"
+DEFAULT_HF_PROVIDER = "featherless-ai"
+DEFAULT_HF_FALLBACK_MODEL_ID = "CohereLabs/aya-expanse-32b"
+DEFAULT_HF_FALLBACK_PROVIDER = "cohere"
+
 
 @dataclass(frozen=True)
 class Settings:
     hf_token: str | None
     hf_model_id: str
     hf_provider: str
+    hf_fallback_model_id: str | None
+    hf_fallback_provider: str
     mailchimp_api_key: str | None
     mailchimp_server_prefix: str | None
     mailchimp_audience_id: str | None
@@ -34,8 +41,12 @@ class Settings:
     ) -> "Settings":
         return cls(
             hf_token=_blank_to_none(os.getenv("HF_TOKEN")),
-            hf_model_id=_blank_to_none(os.getenv("HF_MODEL_ID")) or "Qwen/Qwen2.5-32B-Instruct",
-            hf_provider=_blank_to_none(os.getenv("HF_PROVIDER")) or "auto",
+            hf_model_id=_blank_to_none(os.getenv("HF_MODEL_ID")) or DEFAULT_HF_MODEL_ID,
+            hf_provider=_blank_to_none(os.getenv("HF_PROVIDER")) or DEFAULT_HF_PROVIDER,
+            hf_fallback_model_id=_blank_to_none(os.getenv("HF_FALLBACK_MODEL_ID"))
+            or DEFAULT_HF_FALLBACK_MODEL_ID,
+            hf_fallback_provider=_blank_to_none(os.getenv("HF_FALLBACK_PROVIDER"))
+            or DEFAULT_HF_FALLBACK_PROVIDER,
             mailchimp_api_key=_blank_to_none(os.getenv("MAILCHIMP_API_KEY")),
             mailchimp_server_prefix=_blank_to_none(os.getenv("MAILCHIMP_SERVER_PREFIX")),
             mailchimp_audience_id=_blank_to_none(os.getenv("MAILCHIMP_AUDIENCE_ID")),

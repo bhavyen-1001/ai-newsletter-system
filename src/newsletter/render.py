@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 
+from newsletter.authors import format_authors
 from newsletter.models import NewsletterIssue
 
 
@@ -59,7 +60,7 @@ def render_text(issue: NewsletterIssue, *, subject_prefix: str, signup_url: str 
         lines.extend(
             [
                 f"{index}. {metadata.title}",
-                f"Authors: {', '.join(metadata.authors)}",
+                f"Authors: {format_authors(metadata.authors)}",
                 f"Link: {metadata.arxiv_url}",
                 "",
                 f"Executive summary: {summary.executive_summary}",
@@ -83,7 +84,7 @@ def render_text(issue: NewsletterIssue, *, subject_prefix: str, signup_url: str 
 def _render_paper_html(index: int, paper) -> str:
     metadata = paper.metadata
     summary = paper.summary
-    authors = html.escape(", ".join(metadata.authors))
+    authors = html.escape(format_authors(metadata.authors))
     return f"""
       <section id="{_anchor(metadata.arxiv_id)}" style="margin-top:30px;">
         <h2 style="font-size:22px;margin:0 0 8px;">{index}. {html.escape(metadata.title)}</h2>

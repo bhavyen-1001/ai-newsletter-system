@@ -7,7 +7,7 @@ def _issue() -> NewsletterIssue:
         metadata=PaperMetadata(
             arxiv_id="2606.12345",
             title="A Useful AI Paper",
-            authors=["Ada Lovelace"],
+            authors=["Ada Lovelace", "Alan Turing", "Grace Hopper", "Katherine Johnson"],
             arxiv_url="https://arxiv.org/abs/2606.12345",
             pdf_url="https://arxiv.org/pdf/2606.12345.pdf",
             hf_url="https://huggingface.co/papers/2606.12345",
@@ -33,5 +33,7 @@ def test_workflow_summary_includes_generated_paper_summary():
     )
 
     assert "### 1. A Useful AI Paper" in summary
+    assert "- Authors: Ada Lovelace et al." in summary
+    assert "Alan Turing" not in summary
     assert "**Executive summary:** Summary" in summary
     assert "**Method:** Method" in summary

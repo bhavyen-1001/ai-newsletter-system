@@ -7,7 +7,7 @@ def _issue() -> NewsletterIssue:
         metadata=PaperMetadata(
             arxiv_id="2606.12345",
             title="A Useful AI Paper",
-            authors=["Ada Lovelace"],
+            authors=["Ada Lovelace", "Alan Turing", "Grace Hopper", "Katherine Johnson"],
             arxiv_url="https://arxiv.org/abs/2606.12345",
             pdf_url="https://arxiv.org/pdf/2606.12345.pdf",
             hf_url="https://huggingface.co/papers/2606.12345",
@@ -28,11 +28,15 @@ def test_render_html_contains_intro_anchor_and_unsubscribe():
     html = render_html(_issue(), subject_prefix="AI Research Weekly")
 
     assert 'href="#paper-2606-12345"' in html
+    assert "Authors:</strong> Ada Lovelace et al." in html
+    assert "Alan Turing" not in html
     assert "*|UNSUB|*" in html
 
 
 def test_render_text_contains_plain_text_fallback():
     text = render_text(_issue(), subject_prefix="AI Research Weekly")
 
+    assert "Authors: Ada Lovelace et al." in text
+    assert "Alan Turing" not in text
     assert "Executive summary: Summary" in text
     assert "Unsubscribe: *|UNSUB|*" in text

@@ -9,8 +9,9 @@ This repo contains a simple weekly workflow that turns the top new Hugging Face 
 - It walks the trending list in order and skips arXiv IDs already present in `data/sent_papers.json`.
 - For each new paper, it fetches arXiv metadata and downloads the arXiv PDF.
 - PDF text is extracted with PyMuPDF.
-- Hugging Face Inference summarises the extracted PDF text only.
+- Hugging Face Inference summarises the extracted PDF text only, using a primary model and one fallback model.
 - The renderer creates HTML and plain text email bodies.
+- Long author lists are abbreviated as `First Author et al.` in rendered outputs.
 - Automated checks require title, authors, arXiv link and non-empty summary fields.
 - In test-only mode, Mailchimp creates a regular campaign, sets the content, and sends a test campaign to `ADMIN_EMAIL` only.
 - In send mode, Mailchimp creates a regular campaign, sends a test campaign to `ADMIN_EMAIL`, then sends to the full audience.
@@ -54,8 +55,10 @@ No secret values should be committed to the repo.
 
 Add these under `Settings -> Secrets and variables -> Actions -> Variables`:
 
-- `HF_MODEL_ID`: start with `Qwen/Qwen2.5-32B-Instruct`; if unavailable or too costly, use `Qwen/Qwen2.5-7B-Instruct`.
-- `HF_PROVIDER`: use `auto` initially.
+- `HF_MODEL_ID`: `google/gemma-3-27b-it`
+- `HF_PROVIDER`: `featherless-ai`
+- `HF_FALLBACK_MODEL_ID`: `CohereLabs/aya-expanse-32b`
+- `HF_FALLBACK_PROVIDER`: `cohere`
 - `MAILCHIMP_FROM_NAME`
 - `NEWSLETTER_SUBJECT_PREFIX`: `AI Research Weekly`
 - `NEWSLETTER_SIGNUP_URL`
@@ -124,7 +127,8 @@ When manually running the workflow, choose one of:
 - Hugging Face weekly page fetch retries 3 times.
 - arXiv metadata fetch retries 3 times.
 - PDF download retries 2 times.
-- LLM summarisation retries 3 times.
+- LLM summarisation retries transient failures 3 times for each model endpoint.
+- If the primary LLM endpoint fails or returns unusable JSON, the workflow tries the fallback model endpoint.
 - If a paper cannot be downloaded, extracted or summarised, the workflow skips it and tries the next trending paper.
 - If fewer than 3 usable new papers are available, it sends fewer.
 - If zero papers are usable, validation fails and no email is sent.

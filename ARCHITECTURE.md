@@ -18,7 +18,7 @@ flowchart TD
     F --> G["Fetch arXiv metadata"]
     G --> H["Download arXiv PDF"]
     H --> I["Extract bounded PDF text with PyMuPDF"]
-    I --> J["Summarise with Hugging Face Inference"]
+    I --> J["Summarise with Hugging Face Inference primary/fallback endpoints"]
     J --> K["Validate complete newsletter issue"]
     K --> L["Render HTML, plain text, JSON, and summary artifacts"]
     L --> M{"Run mode"}
@@ -50,7 +50,8 @@ Scheduled runs default to `send`. Every GitHub Actions run installs the package,
 | Workflow orchestration | `src/newsletter/workflow.py` | Coordinates discovery, deduplication, enrichment, summarisation, validation, rendering, delivery, and state updates. |
 | Hugging Face discovery | `src/newsletter/hf_papers.py` | Reads the weekly trending page and extracts ordered arXiv IDs. |
 | arXiv/PDF handling | `src/newsletter/arxiv.py` | Fetches metadata, downloads PDFs, extracts and cleans bounded PDF text. |
-| Summarisation | `src/newsletter/llm.py` | Calls Hugging Face Inference and parses the model response into a structured summary. |
+| Author formatting | `src/newsletter/authors.py` | Abbreviates long author lists for prompts and rendered outputs. |
+| Summarisation | `src/newsletter/llm.py` | Calls Hugging Face Inference primary/fallback endpoints and parses the model response into a structured summary. |
 | Validation | `src/newsletter/evals.py` | Fails the issue before delivery if required metadata or summary fields are missing. |
 | Rendering | `src/newsletter/render.py` | Produces email HTML and plain text. |
 | State | `src/newsletter/state.py` | Stores sent arXiv IDs and Mailchimp campaign IDs in `data/sent_papers.json`. |
@@ -85,7 +86,7 @@ Summaries are generated from extracted arXiv PDF text only. The prompt explicitl
 - `why_it_matters`
 - `limitations`
 
-This gives the newsletter a predictable structure and makes validation possible before delivery. PDF input is bounded by `PDF_TEXT_MAX_CHARS` to control cost, latency, and model context size. The workflow also rejects papers when extracted text is shorter than `MIN_PDF_TEXT_CHARS`, which catches broken downloads, image-only PDFs, or extraction failures before they become weak summaries.
+This gives the newsletter a predictable structure and makes validation possible before delivery. PDF input is bounded by `PDF_TEXT_MAX_CHARS` to control cost, latency, and model context size. Long author lists are abbreviated in the prompt as `First Author et al.` to avoid spending context on metadata. The workflow also rejects papers when extracted text is shorter than `MIN_PDF_TEXT_CHARS`, which catches broken downloads, image-only PDFs, or extraction failures before they become weak summaries.
 
 ## Delivery Modes
 
@@ -117,7 +118,9 @@ External calls are retried with exponential backoff:
 - Hugging Face weekly page fetch: 3 attempts.
 - arXiv metadata fetch: 3 attempts.
 - PDF download: 2 attempts.
-- LLM summarisation: 3 attempts.
+- LLM summarisation: 3 attempts for transient failures on each configured model endpoint.
+
+The default LLM path uses `google/gemma-3-27b-it` through `featherless-ai`, then falls back to `CohereLabs/aya-expanse-32b` through `cohere` if the primary endpoint fails or returns unusable JSON.
 
 Failures for a single paper are recorded in the skipped list and the workflow continues to the next trending paper. The issue fails validation if no usable papers remain or if a selected paper is missing required fields. That means a bad candidate should not stop the whole issue, but an empty or incomplete newsletter should not be sent.
 
@@ -129,7 +132,7 @@ The system was designed around a few practical constraints:
 - **Review before delivery:** Dry-run artifacts, workflow summaries, and `test_only` mode make it possible to inspect generated content before sending to subscribers.
 - **Grounded content:** arXiv PDFs are the source of truth for summaries. This reduces hallucination risk compared with summarising from titles, abstracts, or external knowledge.
 - **Small, auditable state:** A JSON state file is sufficient for duplicate prevention and can be manually repaired if a recovery step is ever needed.
-- **Failure isolation:** One broken PDF or model response should not prevent the system from trying the rest of the trending list.
+- **Failure isolation:** One broken PDF, primary LLM endpoint failure, or model response should not prevent the system from trying the fallback endpoint or the rest of the trending list.
 - **Provider flexibility:** Email delivery is behind an `EmailProvider` protocol, so Mailchimp-specific API details do not leak into the workflow.
 - **Security and compliance:** Secrets come from environment variables or GitHub Secrets. Mailchimp handles signup forms, subscriber storage, unsubscribe links, double opt-in, and list hygiene.
 - **Cost and latency control:** The workflow limits selected paper count and PDF text length. This keeps LLM calls bounded and predictable.

@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import dataclass
 
 from huggingface_hub import InferenceClient
-from tenacity import retry, stop_after_attempt, wait_exponential
+from huggingface_hub.errors import BadRequestError
+from tenacity import retry, retry_if_not_exception_type, stop_after_attempt, wait_exponential
 
+from newsletter.authors import format_authors
 from newsletter.models import PaperMetadata, PaperSummary
 
 SUMMARY_KEYS = [
@@ -17,6 +20,12 @@ SUMMARY_KEYS = [
 ]
 
 
+@dataclass(frozen=True)
+class ModelEndpoint:
+    model_id: str
+    provider: str
+
+
 class HuggingFaceSummariser:
     def __init__(
         self,
@@ -25,16 +34,27 @@ class HuggingFaceSummariser:
         model_id: str,
         provider: str,
         max_input_chars: int,
+        fallback_model_id: str | None = None,
+        fallback_provider: str | None = None,
         mock: bool = False,
     ) -> None:
         self.model_id = model_id
+        self.provider = provider
         self.max_input_chars = max_input_chars
         self.mock = mock
-        self.client = None
+        self.clients: list[tuple[ModelEndpoint, InferenceClient]] = []
         if not mock:
-            self.client = InferenceClient(model=model_id, provider=provider, token=token, timeout=120)
+            endpoints = _model_endpoints(
+                model_id=model_id,
+                provider=provider,
+                fallback_model_id=fallback_model_id,
+                fallback_provider=fallback_provider,
+            )
+            self.clients = [
+                (endpoint, InferenceClient(model=endpoint.model_id, provider=endpoint.provider, token=token, timeout=120))
+                for endpoint in endpoints
+            ]
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=12))
     def summarise(self, metadata: PaperMetadata, pdf_text: str) -> PaperSummary:
         if self.mock:
             return PaperSummary(
@@ -45,26 +65,64 @@ class HuggingFaceSummariser:
                 limitations="Limitations are not assessed in mock mode.",
             )
 
-        if self.client is None:
+        if not self.clients:
             raise RuntimeError("Hugging Face client is not configured.")
 
         prompt = _build_prompt(metadata, pdf_text[: self.max_input_chars])
-        response = self.client.chat_completion(
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You summarise AI research for a mixed audience of senior engineers "
-                        "and technical startup operators. Return only valid JSON."
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You summarise AI research for a mixed audience of senior engineers "
+                    "and technical startup operators. Return only valid JSON."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+        failures: list[str] = []
+
+        for endpoint, client in self.clients:
+            try:
+                response = self._chat_completion(client=client, messages=messages)
+                content = _extract_content(response)
+                return _parse_summary(content)
+            except Exception as exc:
+                failures.append(_failure_message(endpoint, exc))
+
+        raise RuntimeError("All Hugging Face summarisation models failed: " + " | ".join(failures))
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=12),
+        retry=retry_if_not_exception_type(BadRequestError),
+        reraise=True,
+    )
+    def _chat_completion(self, *, client: InferenceClient, messages: list[dict[str, str]]) -> object:
+        return client.chat_completion(
+            messages=messages,
             max_tokens=1200,
             temperature=0.2,
         )
-        content = _extract_content(response)
-        return _parse_summary(content)
+
+
+def _model_endpoints(
+    *,
+    model_id: str,
+    provider: str,
+    fallback_model_id: str | None,
+    fallback_provider: str | None,
+) -> list[ModelEndpoint]:
+    endpoints = [ModelEndpoint(model_id=model_id, provider=provider)]
+    if fallback_model_id:
+        fallback = ModelEndpoint(model_id=fallback_model_id, provider=fallback_provider or provider)
+        if fallback not in endpoints:
+            endpoints.append(fallback)
+    return endpoints
+
+
+def _failure_message(endpoint: ModelEndpoint, exc: Exception) -> str:
+    message = str(exc).strip() or exc.__class__.__name__
+    return f"{endpoint.model_id} via {endpoint.provider}: {exc.__class__.__name__}: {message}"
 
 
 def _build_prompt(metadata: PaperMetadata, pdf_text: str) -> str:
@@ -72,7 +130,7 @@ def _build_prompt(metadata: PaperMetadata, pdf_text: str) -> str:
 Summarise the research paper below using only the extracted PDF text. Do not use outside knowledge.
 
 Title: {metadata.title}
-Authors: {", ".join(metadata.authors)}
+Authors: {format_authors(metadata.authors)}
 arXiv ID: {metadata.arxiv_id}
 
 Return JSON with exactly these string fields:

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from newsletter.arxiv import download_pdf, extract_pdf_text, fetch_arxiv_metadata
+from newsletter.authors import format_authors
 from newsletter.config import Settings
 from newsletter.dates import current_hf_week
 from newsletter.evals import raise_if_invalid
@@ -54,6 +55,8 @@ class NewsletterWorkflow:
             token=self.settings.hf_token,
             model_id=self.settings.hf_model_id,
             provider=self.settings.hf_provider,
+            fallback_model_id=self.settings.hf_fallback_model_id,
+            fallback_provider=self.settings.hf_fallback_provider,
             max_input_chars=self.settings.pdf_text_max_chars,
             mock=mock_llm,
         )
@@ -220,7 +223,7 @@ def _summary_markdown(
                 "",
                 f"### {index}. {metadata.title}",
                 f"- arXiv: [{metadata.arxiv_id}]({metadata.arxiv_url})",
-                f"- Authors: {', '.join(metadata.authors)}",
+                f"- Authors: {format_authors(metadata.authors)}",
                 "",
                 f"**Executive summary:** {summary.executive_summary}",
                 "",

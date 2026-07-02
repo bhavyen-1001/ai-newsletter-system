@@ -12,6 +12,8 @@ def _settings(tmp_path) -> Settings:
         hf_token=None,
         hf_model_id="test-model",
         hf_provider="auto",
+        hf_fallback_model_id="fallback-model",
+        hf_fallback_provider="fallback-provider",
         mailchimp_api_key="mailchimp-key",
         mailchimp_server_prefix="us1",
         mailchimp_audience_id="audience-id",
