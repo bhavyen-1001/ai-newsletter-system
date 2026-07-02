@@ -86,6 +86,8 @@ class NewsletterWorkflow:
             generated_at=datetime.now(tz=UTC).isoformat(),
             papers=selected,
         )
+        if not selected:
+            raise ValueError(_no_papers_selected_message(target_week, len(candidates), skipped))
         raise_if_invalid(issue)
 
         html = render_html(
@@ -235,6 +237,25 @@ def _summary_markdown(
         lines.extend(["", "## Skipped"])
         lines.extend(f"- {item}" for item in skipped[:20])
     lines.append("")
+    return "\n".join(lines)
+
+
+def _no_papers_selected_message(week: str, candidate_count: int, skipped: list[str]) -> str:
+    lines = [
+        "Newsletter selection failed: no papers were selected.",
+        f"Week: {week}",
+        f"Candidates fetched: {candidate_count}",
+    ]
+    if candidate_count == 0:
+        lines.append(f"No Hugging Face paper candidates were found at https://huggingface.co/papers/week/{week}.")
+    elif skipped:
+        lines.append("First skipped candidates:")
+        lines.extend(f"- {item}" for item in skipped[:10])
+        remaining = len(skipped) - 10
+        if remaining > 0:
+            lines.append(f"- ... {remaining} more skipped candidates")
+    else:
+        lines.append("No skip reasons were recorded.")
     return "\n".join(lines)
 
 

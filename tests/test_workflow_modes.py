@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 import newsletter.workflow as workflow_module
 from newsletter.config import Settings
 from newsletter.models import PaperCandidate, PaperMetadata
@@ -125,3 +127,46 @@ def test_send_mode_sends_campaign_and_updates_state(tmp_path, monkeypatch):
     state = json.loads((tmp_path / "sent_papers.json").read_text(encoding="utf-8"))
     assert state["sent_papers"][0]["arxiv_id"] == "2606.12345"
     assert state["sent_papers"][0]["mailchimp_campaign_id"] == "campaign-456"
+
+
+def test_workflow_reports_empty_candidate_week(tmp_path, monkeypatch):
+    monkeypatch.setattr(workflow_module, "fetch_weekly_trending_papers", lambda week: [])
+
+    with pytest.raises(ValueError) as exc_info:
+        workflow_module.NewsletterWorkflow(_settings(tmp_path)).run(
+            week="2026-W25",
+            dry_run=True,
+            mock_llm=True,
+        )
+
+    message = str(exc_info.value)
+    assert "Newsletter selection failed: no papers were selected." in message
+    assert "Week: 2026-W25" in message
+    assert "Candidates fetched: 0" in message
+    assert "https://huggingface.co/papers/week/2026-W25" in message
+
+
+def test_workflow_reports_skip_reasons_when_all_candidates_fail(tmp_path, monkeypatch):
+    candidates = [
+        PaperCandidate(arxiv_id="2606.11111", hf_url="https://huggingface.co/papers/2606.11111"),
+        PaperCandidate(arxiv_id="2606.22222", hf_url="https://huggingface.co/papers/2606.22222"),
+    ]
+    monkeypatch.setattr(workflow_module, "fetch_weekly_trending_papers", lambda week: candidates)
+
+    def fail_metadata(candidate: PaperCandidate) -> PaperMetadata:
+        raise RuntimeError(f"metadata failed for {candidate.arxiv_id}")
+
+    monkeypatch.setattr(workflow_module, "fetch_arxiv_metadata", fail_metadata)
+
+    with pytest.raises(ValueError) as exc_info:
+        workflow_module.NewsletterWorkflow(_settings(tmp_path)).run(
+            week="2026-W25",
+            dry_run=True,
+            mock_llm=True,
+        )
+
+    message = str(exc_info.value)
+    assert "Candidates fetched: 2" in message
+    assert "First skipped candidates:" in message
+    assert "2606.11111: metadata failed for 2606.11111" in message
+    assert "2606.22222: metadata failed for 2606.22222" in message
