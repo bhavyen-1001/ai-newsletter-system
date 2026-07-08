@@ -196,6 +196,63 @@
       "sent_at": "2026-07-05T14:03:02.494378+00:00",
       "title": "LiveEdit: Towards Real-Time Diffusion-Based Streaming Video Editing",
       "week": "2026-W27"
+    },
+    {
+      "arxiv_id": "2606.29526",
+      "authors": [
+        "Jing Liang",
+        "Hongyao Tang",
+        "Yi Ma",
+        "Yancheng He",
+        "Weixun Wang",
+        "Xiaoyang Li",
+        "Ju Huang",
+        "Wenbo Su",
+        "Jinyi Liu",
+        "Yan Zheng",
+        "Jianye Hao",
+        "Bo Zheng"
+      ],
+      "mailchimp_campaign_id": "69751bd6ad",
+      "sent_at": "2026-07-08T11:58:17.952166+00:00",
+      "title": "The Mirage of Optimizing Training Policies: Monotonic Inference Policies as the Real Objective for LLM Reinforcement Learning",
+      "week": "2026-W28"
+    },
+    {
+      "arxiv_id": "2607.06559",
+      "authors": [
+        "Haoyu Zhao",
+        "Xingyue Zhao",
+        "Siteng Huang",
+        "Xin Li",
+        "Deli Zhao",
+        "Zhongyu Li"
+      ],
+      "mailchimp_campaign_id": "69751bd6ad",
+      "sent_at": "2026-07-08T11:58:17.952166+00:00",
+      "title": "RynnWorld-4D: 4D Embodied World Models for Robotic Manipulation",
+      "week": "2026-W28"
+    },
+    {
+      "arxiv_id": "2607.04033",
+      "authors": [
+        "Siyuan Li",
+        "Jiabao Pan",
+        "Yumou Liu",
+        "Zhuoli Ouyang",
+        "Xin Jin",
+        "Xinglong Xu",
+        "Jingxuan Wei",
+        "Shengye Pang",
+        "Jintao Che",
+        "Xuanhe Zhou",
+        "Conghui He",
+        "Cheng Tan"
+      ],
+      "mailchimp_campaign_id": "69751bd6ad",
+      "sent_at": "2026-07-08T11:58:17.952166+00:00",
+      "title": "OmniOpt: Taxonomy, Geometry, and Benchmarking of Modern Optimizers",
+      "week": "2026-W28"
     }
   ]
 }
