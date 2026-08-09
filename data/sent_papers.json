@@ -1006,6 +1006,58 @@
       "sent_at": "2026-08-02T13:48:37.246662+00:00",
       "title": "Qwen-UI-Agent Technical Report: Toward Next-Generation Real-World Centric Foundation GUI Agents",
       "week": "2026-W31"
+    },
+    {
+      "arxiv_id": "2608.05466",
+      "authors": [
+        "Zhongzhi Li",
+        "Yucheng Shi",
+        "Zongxia Li",
+        "Ruhan Wang",
+        "Anhao Li",
+        "Zixun Huang",
+        "Junyao Yang",
+        "Lei Ke",
+        "Ninghao Liu",
+        "Haitao Mi",
+        "Leowei Liang"
+      ],
+      "mailchimp_campaign_id": "f0b6f6f22e",
+      "sent_at": "2026-08-09T13:11:39.397137+00:00",
+      "title": "Recursive Synthesis for Long-Horizon Terminal Tasks",
+      "week": "2026-W32"
+    },
+    {
+      "arxiv_id": "2608.01964",
+      "authors": [
+        "Ziyu Ma",
+        "Hailang Huang",
+        "Shun Zou",
+        "Yong Wang",
+        "Shidong Yang",
+        "Yiming Hu",
+        "Fei Wei",
+        "XiangXiang Chu"
+      ],
+      "mailchimp_campaign_id": "f0b6f6f22e",
+      "sent_at": "2026-08-09T13:11:39.397137+00:00",
+      "title": "LongHorizon-Harness: Advancing Long-Horizon Agents for Real-World Tasks",
+      "week": "2026-W32"
+    },
+    {
+      "arxiv_id": "2608.02023",
+      "authors": [
+        "Yu Zhang",
+        "Ruiqi Li",
+        "Changhao Pan",
+        "Ke Lei",
+        "Xiang Yin",
+        "Cheng Yang"
+      ],
+      "mailchimp_campaign_id": "f0b6f6f22e",
+      "sent_at": "2026-08-09T13:11:39.397137+00:00",
+      "title": "SwanTale: Unified Multi-Speaker Speech and Audio Generation for Instruct and Zero-Shot Tasks",
+      "week": "2026-W32"
     }
   ]
 }
