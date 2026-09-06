@@ -1441,6 +1441,67 @@
       "sent_at": "2026-08-30T16:38:05.566950+00:00",
       "title": "VGI-Bench: Probing Visual Intelligence in Video Generation Models",
       "week": "2026-W35"
+    },
+    {
+      "arxiv_id": "2609.02749",
+      "authors": [
+        "Jianlyu Chen",
+        "Yuyang Hu",
+        "Hongjin Qian",
+        "Jiawei Liu",
+        "Wenqing Wei",
+        "Xiaolong Chen",
+        "Defu Lian",
+        "Zhicheng Dou",
+        "Chaozhuo Li",
+        "Qiwei Ye",
+        "Zheng Liu"
+      ],
+      "mailchimp_campaign_id": "ad40e73f88",
+      "sent_at": "2026-09-06T15:24:15.572532+00:00",
+      "title": "Repo-To-Skill: Distilling GitHub Repositories Into AI4AI Skills",
+      "week": "2026-W36"
+    },
+    {
+      "arxiv_id": "2609.01591",
+      "authors": [
+        "Ke Yang",
+        "Chenglong Wang",
+        "Michel Galley",
+        "Chandan Singh",
+        "Jeevana Priya Inala",
+        "ChengXiang Zhai",
+        "Jianfeng Gao"
+      ],
+      "mailchimp_campaign_id": "ad40e73f88",
+      "sent_at": "2026-09-06T15:24:15.572532+00:00",
+      "title": "StudentSim: Training LLM-based Student Simulators",
+      "week": "2026-W36"
+    },
+    {
+      "arxiv_id": "2609.00111",
+      "authors": [
+        "Xin Zhou",
+        "Zongchuang Zhao",
+        "Zhibo Yang",
+        "Mingsheng Li",
+        "Humen Zhong",
+        "Shuai Bai",
+        "Du Chu",
+        "Ruizhe Chen",
+        "Zhaohai Li",
+        "Jun Tang",
+        "Qiuyue Wang",
+        "Mingkun Yang",
+        "Jiazhao Zhang",
+        "Dayiheng Liu",
+        "Dingkang Liang",
+        "Xiang Bai"
+      ],
+      "mailchimp_campaign_id": "ad40e73f88",
+      "sent_at": "2026-09-06T15:24:15.572532+00:00",
+      "title": "Qwen-Drive-1.0: An Initial Step towards a Vision-Language Foundation Model for Autonomous Driving",
+      "week": "2026-W36"
     }
   ]
 }
