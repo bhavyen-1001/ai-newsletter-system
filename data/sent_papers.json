@@ -1854,6 +1854,56 @@
       "sent_at": "2026-09-20T15:59:45.354144+00:00",
       "title": "LimiX-2: A Contextual Mechanism Network Towards General Structured-Data Intelligence",
       "week": "2026-W38"
+    },
+    {
+      "arxiv_id": "2609.23088",
+      "authors": [
+        "Hao Liang",
+        "Qihan Lin",
+        "Meiyi Qiang",
+        "Linzhuang Sun",
+        "Hengyi Feng",
+        "Mingrui Chen",
+        "Sizhe Qiu",
+        "Wentao Zhang"
+      ],
+      "mailchimp_campaign_id": "711294844a",
+      "sent_at": "2026-09-27T16:56:54.524325+00:00",
+      "title": "OmniEdu: Open Foundation Models for Learning and Teaching",
+      "week": "2026-W39"
+    },
+    {
+      "arxiv_id": "2609.13814",
+      "authors": [
+        "Ant Group"
+      ],
+      "mailchimp_campaign_id": "711294844a",
+      "sent_at": "2026-09-27T16:56:54.524325+00:00",
+      "title": "Realtime-Venus: A full-duplex interaction system with asynchronous delegation",
+      "week": "2026-W39"
+    },
+    {
+      "arxiv_id": "2609.24972",
+      "authors": [
+        "Peng Xia",
+        "Rujun Han",
+        "Zifeng Wang",
+        "Yanfei Chen",
+        "Yufan Zhuang",
+        "Yoonho Lee",
+        "Chengsong Huang",
+        "Han Yu",
+        "Zhongying CuiZhu",
+        "Yifei Ming",
+        "Huaxiu Yao",
+        "Burak Gokturk",
+        "Tomas Pfister",
+        "Chen-Yu Lee"
+      ],
+      "mailchimp_campaign_id": "711294844a",
+      "sent_at": "2026-09-27T16:56:54.524325+00:00",
+      "title": "RRSI: Regularized Recursive Self-Improvement of Agent Harnesses",
+      "week": "2026-W39"
     }
   ]
 }
