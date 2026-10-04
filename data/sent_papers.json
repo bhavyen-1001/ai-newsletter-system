@@ -1904,6 +1904,53 @@
       "sent_at": "2026-09-27T16:56:54.524325+00:00",
       "title": "RRSI: Regularized Recursive Self-Improvement of Agent Harnesses",
       "week": "2026-W39"
+    },
+    {
+      "arxiv_id": "2609.33439",
+      "authors": [
+        "EverMind AI"
+      ],
+      "mailchimp_campaign_id": "5e23d64d53",
+      "sent_at": "2026-10-04T16:50:29.838221+00:00",
+      "title": "Raven: The Harness of Harnesses for Composable Agentic Intelligence",
+      "week": "2026-W40"
+    },
+    {
+      "arxiv_id": "2609.38426",
+      "authors": [
+        "Zhe Qian",
+        "Ziyang Gong",
+        "Zhongxing Xu",
+        "Hehan Li",
+        "Zhonghua Wang",
+        "Fei Luo",
+        "Mingxuan Wang",
+        "Xue Yang",
+        "Shiwei liu",
+        "Yanbiao Ma",
+        "Junchi Yan",
+        "Jungong Han"
+      ],
+      "mailchimp_campaign_id": "5e23d64d53",
+      "sent_at": "2026-10-04T16:50:29.838221+00:00",
+      "title": "LoopVL: Recurrent Visual Intelligence",
+      "week": "2026-W40"
+    },
+    {
+      "arxiv_id": "2609.36484",
+      "authors": [
+        "Hao Li",
+        "MeiJia Chen",
+        "Weijie Ren",
+        "Donghan Li",
+        "Zijun Tian",
+        "Jingchun Huang",
+        "Naibo Wang"
+      ],
+      "mailchimp_campaign_id": "5e23d64d53",
+      "sent_at": "2026-10-04T16:50:29.838221+00:00",
+      "title": "The Teacher Is a Direction, Not a Destination: Extrapolating RL-Induced Representation Residuals in On-Policy Distillation",
+      "week": "2026-W40"
     }
   ]
 }
