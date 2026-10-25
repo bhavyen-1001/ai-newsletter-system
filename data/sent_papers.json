@@ -2048,6 +2048,46 @@
       "sent_at": "2026-10-18T15:47:38.600073+00:00",
       "title": "Jeva: System One Models from First Principles",
       "week": "2026-W42"
+    },
+    {
+      "arxiv_id": "2610.21114",
+      "authors": [
+        "Haotian Ma",
+        "Ruqi Yang",
+        "Philip Townsend"
+      ],
+      "mailchimp_campaign_id": "dd398d87b8",
+      "sent_at": "2026-10-25T16:04:58.240078+00:00",
+      "title": "Spectral-Spatial Interpretation",
+      "week": "2026-W43"
+    },
+    {
+      "arxiv_id": "2610.28402",
+      "authors": [
+        "StreamEval Team"
+      ],
+      "mailchimp_campaign_id": "dd398d87b8",
+      "sent_at": "2026-10-25T16:04:58.240078+00:00",
+      "title": "StreamEval: Evaluating Interactive Streaming Video Generation Models",
+      "week": "2026-W43"
+    },
+    {
+      "arxiv_id": "2610.20424",
+      "authors": [
+        "Enhan Zhao",
+        "Yongqi Tong",
+        "Xuejun Yu",
+        "Hang Wang",
+        "Pan Wang",
+        "Yichao Wang",
+        "Di He",
+        "Jianshe Li",
+        "Wei Wu"
+      ],
+      "mailchimp_campaign_id": "dd398d87b8",
+      "sent_at": "2026-10-25T16:04:58.240078+00:00",
+      "title": "BizAgentBench: Unveiling Hidden Challenges in Deploying Long-Horizon Agents for Real-World Business",
+      "week": "2026-W43"
     }
   ]
 }
