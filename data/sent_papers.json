@@ -2088,6 +2088,60 @@
       "sent_at": "2026-10-25T16:04:58.240078+00:00",
       "title": "BizAgentBench: Unveiling Hidden Challenges in Deploying Long-Horizon Agents for Real-World Business",
       "week": "2026-W43"
+    },
+    {
+      "arxiv_id": "2610.37381",
+      "authors": [
+        "Hanqing Wang",
+        "Zhaotian Cai",
+        "Ruichuan An",
+        "Bohan Zeng",
+        "Tao Zhang",
+        "Yilin Chen",
+        "Xu Jiang",
+        "Kaiquan Chen",
+        "Chongyang Wu",
+        "Haoran Li",
+        "Fan Yang",
+        "Mingan Lin",
+        "Wentao Zhang",
+        "Zenan Zhou",
+        "Youzheng Wu"
+      ],
+      "mailchimp_campaign_id": "bf931d8e60",
+      "sent_at": "2026-11-01T17:55:17.970286+00:00",
+      "title": "PDRVLA: A Vision-Language-Action Model with Physical Dynamics Representations",
+      "week": "2026-W44"
+    },
+    {
+      "arxiv_id": "2610.32749",
+      "authors": [
+        "Wendi Sang",
+        "Kai Li",
+        "Yifan Li",
+        "Jianqiang Huang",
+        "Xiaolin Hu"
+      ],
+      "mailchimp_campaign_id": "bf931d8e60",
+      "sent_at": "2026-11-01T17:55:17.970286+00:00",
+      "title": "Efficient Streaming Audio-Visual Target Speaker Extraction for Real-World Acoustic Scenes",
+      "week": "2026-W44"
+    },
+    {
+      "arxiv_id": "2610.35684",
+      "authors": [
+        "Junyeong Ahn",
+        "Geonwoo Kim",
+        "Kinam Kim",
+        "Gihwi Kim",
+        "Hoonjin Jung",
+        "Hyojin Jang",
+        "Jaegul Choo"
+      ],
+      "mailchimp_campaign_id": "bf931d8e60",
+      "sent_at": "2026-11-01T17:55:17.970286+00:00",
+      "title": "OmniShowcase: Omnidirectional Subject-Consistent Video Generation from Multi-View Images",
+      "week": "2026-W44"
     }
   ]
 }
